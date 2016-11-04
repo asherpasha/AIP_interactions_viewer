@@ -137,11 +137,7 @@
 
 				// Add query to nodes
 				function addData(i) {
-					query = {
-						locus: loci[i],
-						published: pubData
-					};
-
+					// Get data from the BAR
 					$.ajax({
 						beforeSend: function(request) {
 							request.setRequestHeader('Authorization', 'Bearer ' + Agave.token.accessToken);
@@ -155,16 +151,21 @@
 						// Check for error from AIV webservice
 						if (response.status === 'failed') {
 							window.alert('Error: ' + response.error + ' for Locus: ' + loci[i]);
+							// If this is the last AGI, then load the graph
+							if (i === loci.length - 1) {
+								// Now make the network. Not sure why there is a timeout needed.
+								setTimeout(makeCy, 3000);
+							}
 							return;
+						} else {
+							// build Query nodes
+							nodes.push({data: {
+								id: loci[i],
+								name: loci[i],
+								nWidth: 40,
+								nHeight: 40
+							}});
 						}
-
-						// build Query nodes
-						nodes.push({data: {
-							id: loci[i],
-							name: loci[i],
-							nWidth: 40,
-							nHeight: 40
-						}});
 
 						// Parse the response and load the data
 						for (var j = 0; j < response.result.length; j++) {
@@ -223,6 +224,11 @@
 
 							}});
 						}
+						// If this is the last AGI, then load the graph
+						if (i === loci.length - 1) {
+							// Now make the network. Not sure why there is a timeout needed.
+							setTimeout(makeCy, 2000);
+						}
 					});
 				}
 
@@ -254,10 +260,6 @@
 				for (var i = 0; i < loci.length; i++) {
 					addData(i);
 				}
-
-				// Now make the network. Not sure why there is a timeout needed.
-				setTimeout(makeCy, 3000);
-
 			});
 
 			// About button
