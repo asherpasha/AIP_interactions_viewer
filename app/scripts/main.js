@@ -1,4 +1,4 @@
-/*global cytoscape*/
+/*global cytoscape, window */
 (function(window, $, cytoscape, undefined) {
 	'use strict';
 
@@ -9,29 +9,6 @@
 
 	window.addEventListener('Agave::ready', function() {
 		var Agave = window.Agave;
-
-		// Intialize
-		// This is code from old AIP BAR interactions viewer (not sure if the app would work without it!)
-		function init() {
-			var allScripts, i, arborURL, re;
-
-			// Load the dependances: The new way. Thanks for AIP staff for this
-			allScripts = document.querySelectorAll( 'script' );
-			re = /^(.*)(\/cytoscape[^\/]*)\/(.*)cytoscape\.js??(.*)?$/;
-			for ( i = 0; i < allScripts.length && ! arborURL; i++ ) {
-				if ( re.test( allScripts[i].src ) ) {
-					var match = re.exec( allScripts[i].src );
-					arborURL = match[1] + match[2] + '/lib/arbor.js';
-				}
-			}
-			if ( arborURL ) {
-				var el = document.createElement( 'script' );
-				el.src = arborURL;
-				el.type = 'text/javascript';
-				document.body.appendChild( el );
-			}
-		}
-		init();
 
 		$(document).ready(function() {
 			// This function loads cytoscape. 'elements' stores the newtwork
@@ -139,7 +116,7 @@
 			$('#aip-interactions-viewer-interactions-form', appContext).on('submit', function(e) {
 				e.preventDefault();
 
-
+				// Variables
 				// Initialize variables
 				nodes = [];	// Nodes of cytoscape graph
 				edges = [];	// Edges of cytoscape graph
@@ -151,6 +128,105 @@
 				var elements = {};	// The final cytoscape data with nodes and edges
 				var pubData, inputLociOnly, width, color, style;
 
+				// Functions
+				// This function only makes element object just as a workaround for javascript async issues!
+				function makeCy() {
+					elements = {nodes: nodes, edges: edges};
+					loadCy(elements);
+				}
+
+				// Add query to nodes
+				function addData(i) {
+					query = {
+						locus: loci[i],
+						published: pubData
+					};
+
+					$.ajax({
+						beforeSend: function(request) {
+							request.setRequestHeader('Authorization', 'Bearer ' + Agave.token.accessToken);
+						},
+						type: 'GET',
+						dataType: 'json',
+						url: 'https://api.araport.org/community/v0.3/asher-dev/interactions_v0.2/search?locus=' + loci[i] + '&published=' + pubData,
+					}).done(function(response) {
+						// Check for BAR web server errors
+
+						// Check for error from AIV webservice
+						if (response.status === 'failed') {
+							window.alert('Error: ' + response.error + ' for Locus: ' + loci[i]);
+							return;
+						}
+
+						// build Query nodes
+						nodes.push({data: {
+							id: loci[i],
+							name: loci[i],
+							nWidth: 40,
+							nHeight: 40
+						}});
+
+						// Parse the response and load the data
+						for (var j = 0; j < response.result.length; j++) {
+							// See if only user supplied AGI should be included
+							if (inputLociOnly) {
+								if ($.inArray(response.result[j].locus, loci) === -1) {
+									continue;
+								}
+							}
+
+							// Configure the width and style of the edges
+							style = 'solid';
+							if (response.result[j].interologConfidence > 10) {
+								width = 6;
+							} else if (response.result[j].interologConfidence > 5) {
+								width = 4;
+							} else if (response.result[j].interologConfidence > 2) {
+								width = 2;
+							} else {
+								width = 1;
+								style = 'dashed';
+							}
+
+							// set color. Published interactions have blue edges. All else have different shades.
+							if (response.result[j].published === 'true') {
+								color = '#6E8FBE';
+								width = 6;
+								style = 'solid';
+							} else if (response.result[j].correlationCoefficient > 0.8) {
+								color = '#AE0A11';
+							} else if (response.result[j].correlationCoefficient > 0.7) {
+								color = '#D53814';
+							} else if (response.result[j].correlationCoefficient > 0.6) {
+								color = '#EA811E';
+							} else if (response.result[j].correlationCoefficient > 0.5) {
+								color = '#F0BE14';
+							} else {
+								color = '#A2A3AB';
+							}
+
+							// Build interactor nodes
+							nodes.push({data: {
+								id: response.result[j].locus,
+								name: response.result[j].locus,
+								nWidth: 25,
+								nHeight: 25
+							}});
+
+							// Build edges
+							edges.push({data: {
+								source: loci[i],
+								target: response.result[j].locus,
+								lineWidth: width,
+								lineStyle: style,
+								lineColor: color
+
+							}});
+						}
+					});
+				}
+
+				// Workflow after hitting submit
 				// See if the user wants published data or not
 				if ($('#aip-interactions-viewer-pub', appContext).prop('checked')) {
 					pubData = true;
@@ -174,112 +250,14 @@
 					return;
 				}
 
-				// This function only makes element object just as a workaround for javascript async issues!
-				function makeCy() {
-					elements = {nodes: nodes, edges: edges};
-					loadCy(elements);
-				}
-
-				// Add query to nodes
-				function addData(i, callback) {
-					query = {
-						locus: loci[i],
-						published: pubData
-					};
-
-					Agave.api.adama.search({
-						'namespace': 'asher', 'service': 'interactions_v0.1', 'queryParams': query
-					}, function(response) {
-						// Check for BAR web server errors
-						if (response.status !== 200) {
-							window.alert('Error in backend web service!');
-							return;
-						}
-
-						// Check for error from AIV webservice
-						if (response.obj.status === 'failed') {
-							window.alert('Error: ' + response.obj.error + ' for Locus: ' + loci[i]);
-							return;
-						}
-
-						// build Query nodes
-						nodes.push({data: {
-							id: loci[i],
-							name: loci[i],
-							nWidth: 40,
-							nHeight: 40
-						}});
-
-						// Parse the response and load the data
-						for (var j = 0; j < response.obj.result.length; j++) {
-							// See if only user supplied AGI should be included
-							if (inputLociOnly) {
-								if ($.inArray(response.obj.result[j].locus, loci) === -1) {
-									continue;
-								}
-							}
-
-							// Configure the width and style of the edges
-							style = 'solid';
-							if (response.obj.result[j].interologConfidence > 10) {
-								width = 6;
-							} else if (response.obj.result[j].interologConfidence > 5) {
-								width = 4;
-							} else if (response.obj.result[j].interologConfidence > 2) {
-								width = 2;
-							} else {
-								width = 1;
-								style = 'dashed';
-							}
-
-							// set color. Published interactions have blue edges. All else have different shades.
-							if (response.obj.result[j].published === 'true') {
-								color = '#6E8FBE';
-								width = 6;
-								style = 'solid';
-							} else if (response.obj.result[j].correlationCoefficient > 0.8) {
-								color = '#AE0A11';
-							} else if (response.obj.result[j].correlationCoefficient > 0.7) {
-								color = '#D53814';
-							} else if (response.obj.result[j].correlationCoefficient > 0.6) {
-								color = '#EA811E';
-							} else if (response.obj.result[j].correlationCoefficient > 0.5) {
-								color = '#F0BE14';
-							} else {
-								color = '#A2A3AB';
-							}
-
-							// Build interactor nodes
-							nodes.push({data: {
-								id: response.obj.result[j].locus,
-								name: response.obj.result[j].locus,
-								nWidth: 25,
-								nHeight: 25
-							}});
-
-							// Build edges
-							edges.push({data: {
-								source: loci[i],
-								target: response.obj.result[j].locus,
-								lineWidth: width,
-								lineStyle: style,
-								lineColor: color
-
-							}});
-						}
-
-						// When this is done, call the callback function. I don't know how to do this without creathing 'callback hell'
-						if (i === loci.length - 1) {
-							// I am not sure why setTimeout is needed. But async doesn't seem to work correctly everytime without it.
-							setTimeout(callback, 2000);
-						}
-					});
-				}
-
 				// Add data for each user supplied Locus
 				for (var i = 0; i < loci.length; i++) {
-					addData(i, makeCy);
+					addData(i);
 				}
+
+				// Now make the network. Not sure why there is a timeout needed.
+				setTimeout(makeCy, 3000);
+
 			});
 
 			// About button

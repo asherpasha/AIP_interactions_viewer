@@ -1,0 +1,19 @@
+{
+  "namespace": "aip-interactions-viewer",
+  "name": "Araport Interactions Viewer",
+  "description": "This is the interaction viewer from BAR developed for the Araport project. It is funded by Genome Canada",
+  "icon": "app/images/BAR.png",
+  "tags": [
+  	"arabidopsis", "interactions", "proteins"
+  ],
+  "fullscreen": "default",
+  "html": "main.html",
+  "scripts": [
+    "scripts/cytoscape.min.js",
+	"scripts/arbor.js",
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/main.css"
+  ]
+}

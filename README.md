@@ -3,7 +3,8 @@
 This is the interactions viewer from the BAR developed for the Araport project. This was developed by the BAR team with help from Araport team.
 
 ## Versions
-0.1.8 - currently live on Araport <br />
+0.1.9 - currently live on Araport <br />
+0.1.8 <br />
 0.1.7 <br />
 0.1.6 <br />
 0.1.5 <br />

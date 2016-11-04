@@ -1,6 +1,6 @@
 {
   "name": "aip-interactions-viewer",
-  "version": "0.1.6",
+  "version": "0.1.9",
   "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.5",
@@ -15,26 +15,10 @@
     "grunt-inline": "^0.3.2",
     "grunt-wiredep": "^1.9.0",
     "jshint-stylish": "^0.4.0",
-    "load-grunt-tasks": "^0.6.0"
+    "load-grunt-tasks": "^0.6.0",
+    "lodash": "^3.0"
   },
   "engines": {
     "node": ">= 0.10.0"
-  },
-  "description": "This is the interaction viewer from BAR developed for the AIP project.",
-  "main": "Gruntfile.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/asherpasha/AIP_interactions_viewer.git"
-  },
-  "keywords": [
-    "Interactions"
-  ],
-  "author": "Asher",
-  "bugs": {
-    "url": "https://github.com/asherpasha/AIP_interactions_viewer/issues"
-  },
-  "homepage": "https://github.com/asherpasha/AIP_interactions_viewer"
+  }
 }
