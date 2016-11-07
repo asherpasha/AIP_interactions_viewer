@@ -149,11 +149,6 @@
 						// Check for error from AIV webservice
 						if (response.status === 'failed') {
 							window.alert('Error: ' + response.error + ' for Locus: ' + loci[i]);
-							// If this is the last AGI, then load the graph
-							if (i === loci.length - 1) {
-								// Now make the network. Not sure why there is a timeout needed.
-								setTimeout(makeCy, 3000);
-							}
 							return;
 						} else {
 							// build Query nodes
