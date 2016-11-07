@@ -8,9 +8,26 @@
 	var nodes = [], edges = [], loci = [];
 
 	window.addEventListener('Agave::ready', function() {
-		var Agave = window.Agave;
+		var Agave = window.Agave;	// Agave
+		var i = 0; // Counter	
 
 		$(document).ready(function() {
+			// These are the layout option. I will work on these
+			var layoutOptions = {
+				name: 'cose',
+				animate: true,
+				animationThreshold: 250,
+				refresh: 20,
+				fit: true,
+				padding: 20,
+				nodeOverlap: 20,
+				gravity: 80,
+				numIter: 1000,
+				initialTemp: 200,
+				coolingFactor: 0.95,
+				minTemp: 1.0,
+			};
+
 			// This function loads cytoscape. 'elements' stores the newtwork
 			function loadCy(elements) {
 				// Unhide the legend and link for BAR AIV
@@ -23,19 +40,7 @@
 					maxZoom: 4,
 					wheelSensitivity: 0.25,
 					motionBlur: false,
-					layout: {
-						name: 'arbor',
-						liveUpdate: false,
-						fit: true,
-						maxSimulationTime: 200,
-						ungrabifywhileSimulating: true,
-						stepSize: 0.1,
-						padding: [ 50, 50, 50, 50 ],
-						gravity: true,
-						stableEnergy: function(energy) {
-							return (energy.max <= 0.5) || (energy.mean <= 0.3);
-						}
-					},
+					layout: layoutOptions,
 					style: [
 						{
 							selector: 'node',
@@ -128,13 +133,6 @@
 				var elements = {};	// The final cytoscape data with nodes and edges
 				var pubData, inputLociOnly, width, color, style;
 
-				// Functions
-				// This function only makes element object just as a workaround for javascript async issues!
-				function makeCy() {
-					elements = {nodes: nodes, edges: edges};
-					loadCy(elements);
-				}
-
 				// Add query to nodes
 				function addData(i) {
 					// Get data from the BAR
@@ -224,11 +222,6 @@
 
 							}});
 						}
-						// If this is the last AGI, then load the graph
-						if (i === loci.length - 1) {
-							// Now make the network. Not sure why there is a timeout needed.
-							setTimeout(makeCy, 2000);
-						}
 					});
 				}
 
@@ -257,9 +250,16 @@
 				}
 
 				// Add data for each user supplied Locus
-				for (var i = 0; i < loci.length; i++) {
+				for (i = 0; i < loci.length; i++) {
 					addData(i);
 				}
+
+				// There are multiple AJAX call in this program, when they stop, this runs
+				$(document).ajaxStop(function() {
+					// If Ajax has stoped, load the Cytoscape graph
+					elements = {nodes: nodes, edges: edges};
+					loadCy(elements);
+				});
 			});
 
 			// About button

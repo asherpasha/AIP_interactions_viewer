@@ -9,8 +9,8 @@
   "fullscreen": "default",
   "html": "main.html",
   "scripts": [
+  	"scripts/jquery.min.js",
     "scripts/cytoscape.min.js",
-	"scripts/arbor.js",
     "scripts/main.js"
   ],
   "styles": [
