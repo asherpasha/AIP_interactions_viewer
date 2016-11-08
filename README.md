@@ -3,7 +3,8 @@
 This is the interactions viewer from the BAR developed for the Araport project. This was developed by the BAR team with help from Araport team.
 
 ## Versions
-0.1.9 - currently live on Araport <br />
+0.1.10 - currently live on Araport <br />
+0.1.9 <br />
 0.1.8 <br />
 0.1.7 <br />
 0.1.6 <br />
@@ -19,10 +20,10 @@ This is the interactions viewer from the BAR developed for the Araport project. 
 2. Clone the latest developmental release (may have bugs): <br />
 ```git clone https://github.com/asherpasha/AIP_interactions_viewer.git``` <br /> 
 ```cd AIP_interactions_viewer``` <br />
-Or Clone the Araport live release (0.1.7): <br />
+Or Clone the Araport live release (0.1.10): <br />
 ```git clone https://github.com/asherpasha/AIP_interactions_viewer.git``` <br />
 ```cd AIP_interactions_viewer``` <br />
-```git checkout v0.1.7```
+```git checkout v0.1.10```
 3. Prepare: <br />
 ```npm install```  <br />
 ```bower install``` 
