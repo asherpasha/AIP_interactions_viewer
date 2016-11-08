@@ -4,7 +4,7 @@
   "description": "This is the interaction viewer from BAR developed for the Araport project. It is funded by Genome Canada",
   "icon": "app/images/BAR.png",
   "tags": [
-  	"arabidopsis", "interactions", "proteins"
+  	"BAR", "Arabidopsis", "interactions", "proteins"
   ],
   "fullscreen": "default",
   "html": "main.html",

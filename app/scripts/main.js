@@ -142,7 +142,7 @@
 						},
 						type: 'GET',
 						dataType: 'json',
-						url: 'https://api.araport.org/community/v0.3/asher-dev/interactions_v0.2/search?locus=' + loci[i] + '&published=' + pubData,
+						url: 'https://api.araport.org/community/v0.3/asher-live/interactions_v0.2/search?locus=' + loci[i] + '&published=' + pubData,
 					}).done(function(response) {
 						// Check for BAR web server errors
 
